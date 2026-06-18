@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste de Conexão — Supabase</title>
+    <style>
+        body { font-family: monospace; background: #0f172a; color: #e2e8f0; padding: 2rem; }
+        .ok { color: #34d399; }
+        .err { color: #f87171; }
+        .info { color: #60a5fa; }
+        pre { background: #1e293b; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h2>🔌 Teste de Conexão — Supabase Evaflow</h2>
+    <div id="log"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const log = document.getElementById('log');
+        function addLog(msg, cls = '') {
+            log.innerHTML += `<p class="${cls}">${new Date().toLocaleTimeString()} — ${msg}</p>`;
+        }
+
+        async function testarConexao() {
+            const URL = 'https://supabase.evaflow.com.br';
+            const KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3ODk4ODQyMCwiZXhwIjo0OTM0NjYyMDIwLCJyb2xlIjoiYW5vbiJ9.d-eMBIpyvXpC-MJto1yIWjWiuBo9jcBdo4n-uorUUfs';
+
+            addLog(`URL: ${URL}`, 'info');
+            addLog('Inicializando client Supabase...', 'info');
+
+            try {
+                const db = supabase.createClient(URL, KEY);
+                addLog('✅ Client criado com sucesso!', 'ok');
+
+                // Teste 1: Buscar unidades
+                addLog('Testando query: SELECT * FROM unidades...', 'info');
+                const { data: unidades, error: errUnidades } = await db.from('unidades').select('*');
+                
+                if (errUnidades) {
+                    addLog(`❌ Erro na query unidades: ${errUnidades.message}`, 'err');
+                    addLog(`Detalhes: ${JSON.stringify(errUnidades)}`, 'err');
+                } else {
+                    addLog(`✅ Tabela "unidades": ${unidades.length} registro(s) encontrado(s)`, 'ok');
+                    if (unidades.length > 0) {
+                        addLog(`<pre>${JSON.stringify(unidades, null, 2)}</pre>`, 'ok');
+                    }
+                }
+
+                // Teste 2: Buscar técnicos
+                addLog('Testando query: SELECT * FROM tecnicos...', 'info');
+                const { data: tecnicos, error: errTec } = await db.from('tecnicos').select('id, username, nome, perfil');
+
+                if (errTec) {
+                    addLog(`❌ Erro na query tecnicos: ${errTec.message}`, 'err');
+                    addLog(`Detalhes: ${JSON.stringify(errTec)}`, 'err');
+                } else {
+                    addLog(`✅ Tabela "tecnicos": ${tecnicos.length} registro(s) encontrado(s)`, 'ok');
+                    if (tecnicos.length > 0) {
+                        addLog(`<pre>${JSON.stringify(tecnicos, null, 2)}</pre>`, 'ok');
+                    }
+                }
+
+                // Teste 3: Buscar usuários
+                addLog('Testando query: SELECT * FROM usuarios...', 'info');
+                const { data: usuarios, error: errUsr } = await db.from('usuarios').select('id, username, nome, nivel_hierarquico');
+
+                if (errUsr) {
+                    addLog(`❌ Erro na query usuarios: ${errUsr.message}`, 'err');
+                    addLog(`Detalhes: ${JSON.stringify(errUsr)}`, 'err');
+                } else {
+                    addLog(`✅ Tabela "usuarios": ${usuarios.length} registro(s) encontrado(s)`, 'ok');
+                    if (usuarios.length > 0) {
+                        addLog(`<pre>${JSON.stringify(usuarios, null, 2)}</pre>`, 'ok');
+                    }
+                }
+
+                // Resumo
+                addLog('────────────────────────', 'info');
+                const tudo_ok = !errUnidades && !errTec && !errUsr && unidades.length > 0;
+                if (tudo_ok) {
+                    addLog('🎉 CONEXÃO OK! Todas as tabelas acessíveis. Pode usar o sistema normalmente.', 'ok');
+                } else if (!errUnidades && unidades.length === 0) {
+                    addLog('⚠️ Conexão OK, mas as tabelas estão vazias. Execute o SQL (01_init_schema.sql) no editor do Supabase.', 'err');
+                } else {
+                    addLog('❌ Há problemas na conexão. Verifique os erros acima.', 'err');
+                }
+
+            } catch (e) {
+                addLog(`❌ Erro fatal: ${e.message}`, 'err');
+                addLog(`Stack: ${e.stack}`, 'err');
+            }
+        }
+
+        testarConexao();
+    </script>
+</body>
+</html>

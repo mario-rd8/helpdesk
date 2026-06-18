@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Help Desk Selfware — Juntos Educação. Sistema de chamados técnicos soberano.">
+    <title>Help Desk — Juntos Educação</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        eva: {
+                            dark: '#0f172a',
+                            darker: '#020617',
+                            card: '#1e293b',
+                            border: '#334155',
+                            muted: '#94a3b8',
+                            text: '#e2e8f0',
+                            green: '#10b981',
+                            'green-bright': '#34d399',
+                            'green-glow': '#059669',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                        'slide-in-right': 'slideInRight 0.3s ease-out',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideInRight: {
+                            '0%': { opacity: '0', transform: 'translateX(20px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 5px rgba(16, 185, 129, 0.3)' },
+                            '50%': { boxShadow: '0 0 20px rgba(16, 185, 129, 0.6)' },
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+
+    <!-- Supabase JS Client via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Estilos customizados Evaflow -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-eva-darker text-eva-text font-sans min-h-screen antialiased">
+
+    <!-- ============================================================ -->
+    <!-- SIDEBAR (oculta na tela de login) -->
+    <!-- ============================================================ -->
+    <aside id="sidebar" class="hidden fixed left-0 top-0 h-full w-64 bg-eva-dark border-r border-eva-border z-40 flex flex-col transition-transform duration-300">
+        <!-- Logo / Brand -->
+        <div class="p-6 border-b border-eva-border">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold text-white leading-tight">Help Desk</h1>
+                    <p class="text-xs text-eva-muted">Juntos Educação</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div id="sidebar-user-info" class="p-4 border-b border-eva-border">
+            <p id="sidebar-user-name" class="text-sm font-semibold text-white truncate"></p>
+            <p id="sidebar-user-role" class="text-xs text-eva-muted"></p>
+        </div>
+
+        <!-- Navigation -->
+        <nav id="sidebar-nav" class="flex-1 p-4 space-y-1">
+            <!-- Links injetados dinamicamente pelo router -->
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-4 border-t border-eva-border">
+            <button id="btn-logout" onclick="handleLogout()" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-slate-400 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Sair
+            </button>
+        </div>
+    </aside>
+
+    <!-- ============================================================ -->
+    <!-- CONTAINER PRINCIPAL -->
+    <!-- ============================================================ -->
+    <main id="app-container" class="min-h-screen transition-all duration-300">
+        <!-- Conteúdo renderizado dinamicamente pelos módulos JS -->
+        <div id="app-content" class="animate-fade-in">
+            <!-- Loading inicial -->
+            <div class="flex items-center justify-center min-h-screen">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center animate-pulse">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </div>
+                    <p class="text-eva-muted text-sm">Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- MODAL OVERLAY -->
+    <!-- ============================================================ -->
+    <div id="modal-overlay" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div id="modal-content" class="bg-eva-dark border border-eva-border rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto animate-scale-in">
+            <!-- Conteúdo do modal injetado dinamicamente -->
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- FLOATING ACTION BUTTON: Abrir Chamado (ação principal) -->
+    <!-- ============================================================ -->
+    <button id="fab-novo-chamado" onclick="openNewTicketModal()" class="hidden fixed bottom-8 right-8 z-30 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white pl-5 pr-7 py-4 rounded-2xl shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 hover:scale-105 flex items-center gap-3 group fab-pulse" title="Abrir novo chamado">
+        <svg class="w-6 h-6 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span class="font-bold text-base tracking-wide">Abrir Chamado</span>
+    </button>
+
+    <!-- ============================================================ -->
+    <!-- TOAST NOTIFICATIONS -->
+    <!-- ============================================================ -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[60] space-y-2">
+        <!-- Toasts injetados dinamicamente -->
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- OVERLAY DE AVALIAÇÃO OBRIGATÓRIA (Estilo Uber) -->
+    <!-- ============================================================ -->
+    <div id="rating-overlay" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div id="rating-content" class="bg-eva-dark border border-eva-border rounded-3xl p-8 shadow-2xl w-full max-w-md overflow-hidden relative">
+            <!-- Injetado dinamicamente -->
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ============================================================ -->
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/kanban.js"></script>
+    <script src="js/portal.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/cadastros.js"></script>
+    <script src="js/avaliacoes.js"></script>
+    <script src="js/router.js"></script>
+
+</body>
+</html>
