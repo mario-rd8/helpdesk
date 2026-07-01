@@ -23,14 +23,8 @@ function renderLogin() {
             <div id="login-card-container" class="w-full max-w-md animate-slide-up relative z-10 transition-transform duration-200 ease-out">
                 
                 <!-- Logo + Título -->
-                <div class="text-center mb-8">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-xl shadow-emerald-500/20 mb-4">
-                        <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                    </div>
-                    <h1 class="text-2xl font-bold text-white tracking-wide">Help Desk</h1>
-                    <p class="text-eva-muted text-sm mt-1">Juntos Educação — Selfware</p>
+                <div class="text-center mb-8 flex justify-center">
+                    <img src="assets/EvaFlow-logotipo-FlowDesk-vertical.svg" alt="EvaFlow FlowDesk" class="h-20 w-auto select-none">
                 </div>
 
                 <!-- Card de Login -->
@@ -107,9 +101,12 @@ function renderLogin() {
                 </div>
 
                 <!-- Footer -->
-                <p class="text-center text-slate-600 text-xs mt-6 select-none">
-                    Selfware © ${new Date().getFullYear()} — Evaflow
-                </p>
+                <div class="text-center mt-6 select-none flex items-center justify-center gap-1.5 text-xs text-slate-500">
+                    <span>Desenvolvido por</span>
+                    <a href="http://evaflow.com.br" target="_blank" rel="noopener noreferrer" class="opacity-60 hover:opacity-100 transition-opacity inline-flex items-center">
+                        <img src="assets/EvaFlow-logotipo.svg" alt="Evaflow" class="h-4 w-auto"/>
+                    </a>
+                </div>
             </div>
         </div>
     `;
@@ -192,7 +189,34 @@ async function handleLogin(event) {
     spinner.classList.remove('hidden');
 
     try {
-        // 1. Busca na tabela de técnicos
+        // 1. Busca na tabela de administradores do SaaS (SaaS Owner)
+        const { data: admin, error: errAdm } = await db
+            .from('saas_admins')
+            .select('*')
+            .eq('username', username)
+            .single();
+
+        if (admin && !errAdm) {
+            if (admin.senha_hash !== password) {
+                throw new Error('Senha incorreta.');
+            }
+            saveSession({
+                id: admin.id,
+                nome: admin.nome,
+                username: admin.username,
+                tipo: 'saas_owner',
+                perfil: 'saas_admin',
+                unidade_id: null,
+                nivel_hierarquico: null,
+                provedor_ti_id: null,
+                cliente_id: null
+            });
+            showToast(`Bem-vindo, Administrador!`, 'success');
+            window.location.hash = '#/dashboard';
+            return;
+        }
+
+        // 2. Busca na tabela de técnicos (com provedor_ti_id)
         const { data: tecnico, error: errTec } = await db
             .from('tecnicos')
             .select('*')
@@ -200,24 +224,28 @@ async function handleLogin(event) {
             .single();
 
         if (tecnico && !errTec) {
-            // Valida senha (texto simples no MVP)
             if (tecnico.senha_hash !== password) {
                 throw new Error('Senha incorreta.');
             }
-            // Salva sessão como técnico
+            
+            // Perfil explícito: 'gestor_ti' ou 'tecnico'
+            const perfilFinal = tecnico.perfil === 'gestor_ti' ? 'gestor_ti' : 'tecnico';
+
             saveSession({
                 id: tecnico.id,
                 nome: tecnico.nome,
                 username: tecnico.username,
                 tipo: 'tecnico',
-                perfil: tecnico.perfil,
-                unidade_id: tecnico.unidade_id,
+                perfil: perfilFinal,
+                unidade_id: null,
                 nivel_hierarquico: null,
+                provedor_ti_id: tecnico.provedor_ti_id,
+                cliente_id: null
             });
             showToast(`Bem-vindo, ${tecnico.nome}!`, 'success');
             
-            // Redireciona: gestor_ti → dashboard, técnico → kanban
-            if (tecnico.perfil === 'gestor_ti') {
+            // Redirecionamento condicional estrito
+            if (perfilFinal === 'gestor_ti') {
                 window.location.hash = '#/dashboard';
             } else {
                 window.location.hash = '#/kanban';
@@ -225,34 +253,40 @@ async function handleLogin(event) {
             return;
         }
 
-        // 2. Busca na tabela de usuários
+        // 3. Busca na tabela de usuários (com cliente_id, unidade_id e busca provedor_ti_id via join)
         const { data: usuario, error: errUsr } = await db
             .from('usuarios')
-            .select('*')
+            .select('*, clientes:cliente_id(provedor_ti_id)')
             .eq('username', username)
             .single();
 
         if (usuario && !errUsr) {
-            // Valida senha (texto simples no MVP)
             if (usuario.senha_hash !== password) {
                 throw new Error('Senha incorreta.');
             }
-            // Salva sessão como usuário
+
+            // Perfil do cliente final: 'gestor_cliente' ou 'colaborador'
+            const perfilFinal = (usuario.nivel_hierarquico === 'gestor' || usuario.nivel_hierarquico === 'diretor') 
+                ? 'gestor_cliente' 
+                : 'colaborador';
+
             saveSession({
                 id: usuario.id,
                 nome: usuario.nome,
                 username: usuario.username,
                 tipo: 'usuario',
-                perfil: null,
+                perfil: perfilFinal,
                 unidade_id: usuario.unidade_id,
                 nivel_hierarquico: usuario.nivel_hierarquico,
+                cliente_id: usuario.cliente_id,
+                provedor_ti_id: usuario.clientes?.provedor_ti_id || null
             });
             showToast(`Bem-vindo, ${usuario.nome}!`, 'success');
             window.location.hash = '#/portal';
             return;
         }
 
-        // 3. Não encontrado em nenhuma tabela
+        // 4. Não encontrado em nenhuma tabela
         throw new Error('Usuário não encontrado no sistema.');
 
     } catch (err) {
@@ -384,7 +418,12 @@ async function handleChangePassword(event) {
     btnText.textContent = 'Salvando...';
 
     try {
-        const table = session.tipo === 'tecnico' ? 'tecnicos' : 'usuarios';
+        let table = 'usuarios';
+        if (session.tipo === 'tecnico') {
+            table = 'tecnicos';
+        } else if (session.tipo === 'saas_owner') {
+            table = 'saas_admins';
+        }
 
         // 1. Verifica se a senha atual está correta
         const { data, error: fetchErr } = await db
@@ -418,6 +457,8 @@ async function handleChangePassword(event) {
         setTimeout(() => {
             if (session.tipo === 'tecnico') {
                 window.location.hash = session.perfil === 'gestor_ti' ? '#/dashboard' : '#/kanban';
+            } else if (session.tipo === 'saas_owner') {
+                window.location.hash = '#/dashboard';
             } else {
                 window.location.hash = '#/portal';
             }

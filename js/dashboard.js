@@ -20,11 +20,11 @@ async function renderDashboard() {
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <div>
                     <h2 class="text-2xl font-bold text-white">Dashboard de Controle</h2>
-                    <p class="text-eva-muted text-sm mt-1">Monitoramento consolidado de todas as unidades</p>
+                    <p class="text-eva-muted text-sm mt-1">Monitoramento consolidado dos clientes atendidos</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <select id="dashboard-unit-filter" onchange="loadDashboardData()" class="bg-eva-card border border-eva-border rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors">
-                        <option value="all">📊 Todas as Unidades</option>
+                        <option value="all">📊 Todos os Clientes</option>
                     </select>
                     <button onclick="loadDashboardData()" class="btn-ghost px-4 py-2 rounded-xl text-sm flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,94 +35,85 @@ async function renderDashboard() {
                 </div>
             </div>
 
-            <!-- KPI Cards -->
-            <div id="kpi-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div class="kpi-card p-6 flex items-center justify-center">
+            <!-- KPI Cards (Grid com 4 cards compactados) -->
+            <div id="kpi-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4 flex items-center justify-center min-h-[90px]">
                     <div class="spinner"></div>
                 </div>
-                <div class="kpi-card p-6 flex items-center justify-center">
+                <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4 flex items-center justify-center min-h-[90px]">
                     <div class="spinner"></div>
                 </div>
-                <div class="kpi-card p-6 flex items-center justify-center">
+                <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4 flex items-center justify-center min-h-[90px]">
+                    <div class="spinner"></div>
+                </div>
+                <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4 flex items-center justify-center min-h-[90px]">
                     <div class="spinner"></div>
                 </div>
             </div>
 
-            <!-- Grid Principal -->
+            <!-- Grid Principal (2/3 para Chamados Recentes e 1/3 para Reincidências) -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Coluna Lateral Esquerda: Satisfações e Ranking de Máquinas (1/3) -->
-                <div class="lg:col-span-1 space-y-6">
-                    <!-- Satisfação por Unidade -->
-                    <div class="bg-eva-card border border-eva-border rounded-2xl p-6">
-                        <div id="ranking-unidades-satisfacao">
-                            <div class="flex items-center justify-center py-8"><div class="spinner"></div></div>
-                        </div>
-                    </div>
-
-                    <!-- Satisfação por Técnico (Oculto temporariamente para evitar redundância de dados) -->
-                    <div class="bg-eva-card border border-eva-border rounded-2xl p-6 hidden">
-                        <div id="ranking-tecnicos-satisfacao">
-                            <div class="flex items-center justify-center py-8"><div class="spinner"></div></div>
-                        </div>
-                    </div>
-
-                    <!-- Ranking de Máquinas -->
-                    <div class="bg-eva-card border border-eva-border rounded-2xl p-6">
-                        <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                            </svg>
-                            Máquinas com Mais Chamados
-                        </h3>
-                        <div id="ranking-list">
-                            <div class="flex items-center justify-center py-8"><div class="spinner"></div></div>
-                        </div>
+                <!-- Lado Esquerdo: Chamados Recentes (2/3) -->
+                <div class="lg:col-span-2 bg-eva-card border border-eva-border rounded-2xl p-6 flex flex-col">
+                    <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Chamados Recentes
+                    </h3>
+                    <div id="recent-tickets" class="overflow-y-auto max-h-[350px] pr-1.5 scrollbar-thin">
+                        <div class="flex items-center justify-center py-8"><div class="spinner"></div></div>
                     </div>
                 </div>
 
-                <!-- Coluna da Direita: Chamados Recentes (2/3) -->
-                <div class="lg:col-span-2">
-                    <div class="bg-eva-card border border-eva-border rounded-2xl p-6">
-                        <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Chamados Recentes
-                        </h3>
-                        <div id="recent-tickets">
-                            <div class="flex items-center justify-center py-8"><div class="spinner"></div></div>
-                        </div>
+                <!-- Lado Direito: Máquinas com Mais Chamados (1/3) -->
+                <div class="lg:col-span-1 bg-eva-card border border-eva-border rounded-2xl p-6 flex flex-col">
+                    <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                        Máquinas com Mais Chamados
+                    </h3>
+                    <div id="ranking-list" class="overflow-y-auto max-h-[350px] pr-1.5 scrollbar-thin">
+                        <div class="flex items-center justify-center py-8"><div class="spinner"></div></div>
                     </div>
                 </div>
             </div>
         </div>
     `;
 
-    // Carrega lista de unidades no filtro
-    await loadUnitFilter();
+    // Carrega lista de clientes no filtro
+    await loadClientFilter();
     // Carrega os dados do dashboard
     await loadDashboardData();
 }
 
-/** Popula o select de unidades */
-async function loadUnitFilter() {
+/** Popula o select de clientes */
+async function loadClientFilter() {
+    const session = getSession();
     try {
-        const { data: unidades } = await db
-            .from('unidades')
-            .select('id, nome_unidade')
-            .order('id');
+        let query = db.from('clientes').select('id, nome_cliente').order('nome_cliente');
+
+        if (session.tipo === 'tecnico' && session.provedor_ti_id) {
+            query = query.eq('provedor_ti_id', session.provedor_ti_id);
+        }
+
+        const { data: clientes } = await query;
 
         const select = document.getElementById('dashboard-unit-filter');
-        if (select && unidades) {
-            unidades.forEach(u => {
-                const option = document.createElement('option');
-                option.value = u.id;
-                option.textContent = u.nome_unidade;
-                select.appendChild(option);
-            });
+        if (select) {
+            select.innerHTML = '<option value="all">📊 Todos os Clientes</option>';
+            if (clientes) {
+                clientes.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = `🏢 ${c.nome_cliente}`;
+                    select.appendChild(option);
+                });
+            }
         }
     } catch (err) {
-        console.error('Erro ao carregar unidades:', err);
+        console.error('Erro ao carregar clientes para o filtro:', err);
     }
 }
 
@@ -140,26 +131,47 @@ async function loadDashboardData() {
     ]);
 }
 
-/** Carrega os KPI cards */
+/** Carrega os KPI cards com layout compacto e horizontal */
 async function loadKPIs(filter) {
     const kpiContainer = document.getElementById('kpi-cards');
+    const session = getSession();
 
     try {
         // Query base de chamados
         let queryAbertos = db.from('chamados').select('id', { count: 'exact', head: true }).neq('status', 'Resolvido');
         let queryTotal = db.from('chamados').select('id', { count: 'exact', head: true });
         let queryResolvidos = db.from('chamados').select('created_at, updated_at').eq('status', 'Resolvido');
+        
+        // Query avaliações
+        let queryAval = db.from('avaliacoes').select(`
+            nota,
+            provedor_ti_id,
+            chamados!inner (
+                cliente_id
+            )
+        `);
 
-        if (filter !== 'all') {
-            queryAbertos = queryAbertos.eq('unidade_id', filter);
-            queryTotal = queryTotal.eq('unidade_id', filter);
-            queryResolvidos = queryResolvidos.eq('unidade_id', filter);
+        // Isolamento de Tenant (Gestor TI)
+        if (session.tipo === 'tecnico' && session.provedor_ti_id) {
+            queryAbertos = queryAbertos.eq('provedor_ti_id', session.provedor_ti_id);
+            queryTotal = queryTotal.eq('provedor_ti_id', session.provedor_ti_id);
+            queryResolvidos = queryResolvidos.eq('provedor_ti_id', session.provedor_ti_id);
+            queryAval = queryAval.eq('provedor_ti_id', session.provedor_ti_id);
         }
 
-        const [resAbertos, resTotal, resResolvidos] = await Promise.all([
+        // Filtro selecionado no seletor (Empresas Clientes)
+        if (filter !== 'all') {
+            queryAbertos = queryAbertos.eq('cliente_id', filter);
+            queryTotal = queryTotal.eq('cliente_id', filter);
+            queryResolvidos = queryResolvidos.eq('cliente_id', filter);
+            queryAval = queryAval.eq('chamados.cliente_id', filter);
+        }
+
+        const [resAbertos, resTotal, resResolvidos, resAval] = await Promise.all([
             queryAbertos,
             queryTotal,
             queryResolvidos,
+            queryAval
         ]);
 
         const totalAbertos = resAbertos.count || 0;
@@ -176,73 +188,110 @@ async function loadKPIs(filter) {
             tempoMedioHoras = Math.round((totalMs / resolvidos.length) / (1000 * 60 * 60) * 10) / 10;
         }
 
+        // Calcula Satisfação Média Geral
+        const avals = resAval.data || [];
+        let totalAvaliacoes = 0;
+        let mediaSatisfacao = 0;
+        if (avals.length > 0) {
+            totalAvaliacoes = avals.length;
+            const soma = avals.reduce((acc, curr) => acc + curr.nota, 0);
+            mediaSatisfacao = Math.round((soma / totalAvaliacoes) * 10) / 10;
+        }
+
         kpiContainer.innerHTML = `
             <!-- KPI: Chamados em Aberto -->
-            <div class="kpi-card p-6">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs text-eva-muted uppercase tracking-wider font-semibold">Em Aberto</p>
-                        <p class="text-3xl font-bold text-white mt-2">${totalAbertos}</p>
-                        <p class="text-xs text-slate-400 mt-1">de ${totalGeral} total</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-amber-500/5 border border-amber-500/20 p-4 rounded-2xl shadow-lg shadow-amber-500/2 min-h-[90px] flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] text-eva-muted uppercase tracking-wider font-semibold">Em Aberto</p>
+                    <div class="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                 </div>
-                ${totalAbertos > 0 ? `
-                    <div class="mt-4 w-full bg-slate-700 rounded-full h-1.5">
-                        <div class="bg-amber-400 h-1.5 rounded-full transition-all duration-500" style="width: ${totalGeral > 0 ? Math.round((totalAbertos / totalGeral) * 100) : 0}%"></div>
+                <div class="flex items-center justify-between mt-1">
+                    <div>
+                        <p class="text-2xl font-extrabold text-white leading-none">${totalAbertos}</p>
+                        <p class="text-[10px] text-slate-500 mt-1">de ${totalGeral} total</p>
                     </div>
-                ` : ''}
+                    ${totalAbertos > 0 ? `
+                        <div class="w-16 bg-slate-800 rounded-full h-1.5 flex-shrink-0 self-center ml-3">
+                            <div class="bg-amber-400 h-1.5 rounded-full transition-all duration-500" style="width: ${totalGeral > 0 ? Math.round((totalAbertos / totalGeral) * 100) : 0}%"></div>
+                        </div>
+                    ` : ''}
+                </div>
             </div>
 
             <!-- KPI: Tempo Médio de Resolução -->
-            <div class="kpi-card p-6">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs text-eva-muted uppercase tracking-wider font-semibold">Tempo Médio</p>
-                        <p class="text-3xl font-bold text-white mt-2">${tempoMedioHoras > 0 ? tempoMedioHoras + 'h' : '—'}</p>
-                        <p class="text-xs text-slate-400 mt-1">${resolvidos.length} chamado(s) resolvido(s)</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-2xl shadow-lg shadow-emerald-500/2 min-h-[90px] flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] text-eva-muted uppercase tracking-wider font-semibold">Tempo Médio</p>
+                    <div class="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-1">
+                    <div>
+                        <p class="text-2xl font-extrabold text-white leading-none">${tempoMedioHoras > 0 ? tempoMedioHoras + 'h' : '—'}</p>
+                        <p class="text-[10px] text-slate-500 mt-1">${resolvidos.length} resolvido(s)</p>
                     </div>
                 </div>
             </div>
 
             <!-- KPI: Taxa de Resolução -->
-            <div class="kpi-card p-6">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <p class="text-xs text-eva-muted uppercase tracking-wider font-semibold">Taxa de Resolução</p>
-                        <p class="text-3xl font-bold text-white mt-2">${totalGeral > 0 ? Math.round((resolvidos.length / totalGeral) * 100) : 0}%</p>
-                        <p class="text-xs text-slate-400 mt-1">${resolvidos.length} de ${totalGeral}</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-blue-500/15 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-blue-500/5 border border-blue-500/20 p-4 rounded-2xl shadow-lg shadow-blue-500/2 min-h-[90px] flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] text-eva-muted uppercase tracking-wider font-semibold">Taxa de Resolução</p>
+                    <div class="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                 </div>
-                ${totalGeral > 0 ? `
-                    <div class="mt-4 w-full bg-slate-700 rounded-full h-1.5">
-                        <div class="bg-emerald-400 h-1.5 rounded-full transition-all duration-500" style="width: ${Math.round((resolvidos.length / totalGeral) * 100)}%"></div>
+                <div class="flex items-center justify-between mt-1">
+                    <div>
+                        <p class="text-2xl font-extrabold text-white leading-none">${totalGeral > 0 ? Math.round((resolvidos.length / totalGeral) * 100) : 0}%</p>
+                        <p class="text-[10px] text-slate-500 mt-1">${resolvidos.length} de ${totalGeral}</p>
                     </div>
-                ` : ''}
+                    ${totalGeral > 0 ? `
+                        <div class="w-16 bg-slate-800 rounded-full h-1.5 flex-shrink-0 self-center ml-3">
+                            <div class="bg-blue-450 h-1.5 rounded-full transition-all duration-500" style="width: ${Math.round((resolvidos.length / totalGeral) * 100)}%"></div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- KPI: Satisfação do Cliente (Estrelas agregadas) -->
+            <div class="bg-purple-500/5 border border-purple-500/20 p-4 rounded-2xl shadow-lg shadow-purple-500/2 min-h-[90px] flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] text-eva-muted uppercase tracking-wider font-semibold">Média de Satisfação</p>
+                    <div class="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                        <span class="text-purple-400 text-xs">★</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-1">
+                    <div>
+                        <p class="text-2xl font-extrabold text-white leading-none">${mediaSatisfacao > 0 ? mediaSatisfacao : '—'}</p>
+                        <p class="text-[10px] text-slate-500 mt-1">${totalAvaliacoes} avaliação(ões)</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-0.5 ml-3 flex-shrink-0">
+                        <div class="flex gap-0.5">
+                            ${renderStars(mediaSatisfacao, 'sm')}
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     } catch (err) {
-        kpiContainer.innerHTML = `<p class="text-red-400 text-sm col-span-3">Erro ao carregar KPIs: ${err.message}</p>`;
+        kpiContainer.innerHTML = `<p class="text-red-400 text-xs">Erro ao carregar KPIs: ${err.message}</p>`;
     }
 }
 
-/** Ranking de máquinas com mais chamados */
 async function loadRanking(filter) {
     const rankingList = document.getElementById('ranking-list');
+    const session = getSession();
 
     try {
         let query = db.from('chamados').select(`
@@ -250,8 +299,14 @@ async function loadRanking(filter) {
             ativos:ativo_id ( codigo_tombamento, modelo )
         `);
 
+        // Isolamento de Tenant (Gestor TI)
+        if (session.tipo === 'tecnico' && session.provedor_ti_id) {
+            query = query.eq('provedor_ti_id', session.provedor_ti_id);
+        }
+
+        // Filtro selecionado (Empresas Clientes)
         if (filter !== 'all') {
-            query = query.eq('unidade_id', filter);
+            query = query.eq('cliente_id', filter);
         }
 
         // Busca todos os chamados que têm ativo
@@ -312,6 +367,7 @@ async function loadRanking(filter) {
 /** Tabela de chamados recentes */
 async function loadRecentTickets(filter) {
     const container = document.getElementById('recent-tickets');
+    const session = getSession();
 
     try {
         let query = db
@@ -325,8 +381,14 @@ async function loadRecentTickets(filter) {
             .order('created_at', { ascending: false })
             .limit(10);
 
+        // Isolamento de Tenant (Gestor TI)
+        if (session.tipo === 'tecnico' && session.provedor_ti_id) {
+            query = query.eq('provedor_ti_id', session.provedor_ti_id);
+        }
+
+        // Filtro selecionado (Empresas Clientes)
         if (filter !== 'all') {
-            query = query.eq('unidade_id', filter);
+            query = query.eq('cliente_id', filter);
         }
 
         const { data: chamados, error } = await query;
@@ -382,18 +444,29 @@ async function loadRecentTickets(filter) {
     }
 }
 
-/** Carrega e calcula a satisfação média de cada unidade organizativa */
+/** Carrega e calcula a satisfação média de cada empresa cliente */
 async function loadUnidadesSatisfacao(filter) {
     const container = document.getElementById('ranking-unidades-satisfacao');
+    const session = getSession();
+
     try {
         let query = db.from('avaliacoes').select(`
             nota,
-            unidade_id,
-            unidades:unidade_id ( nome_unidade )
+            provedor_ti_id,
+            chamados!inner (
+                cliente_id,
+                clientes ( nome_cliente )
+            )
         `);
 
+        // Isolamento de Tenant (Gestor TI)
+        if (session.tipo === 'tecnico' && session.provedor_ti_id) {
+            query = query.eq('provedor_ti_id', session.provedor_ti_id);
+        }
+
+        // Filtro selecionado (Empresas Clientes)
         if (filter !== 'all') {
-            query = query.eq('unidade_id', filter);
+            query = query.eq('chamados.cliente_id', filter);
         }
 
         const { data: avaliacoes, error } = await query;
@@ -402,31 +475,37 @@ async function loadUnidadesSatisfacao(filter) {
         if (!avaliacoes || avaliacoes.length === 0) {
             container.innerHTML = `
                 <div class="empty-state py-4">
-                    <p class="text-xs">Nenhuma avaliação de unidade</p>
+                    <p class="text-xs">Nenhuma avaliação de cliente</p>
                 </div>
             `;
             return;
         }
 
-        const unidadesMap = {};
+        const clientesMap = {};
         avaliacoes.forEach(a => {
-            const uid = a.unidade_id;
-            if (!uid) return;
-            const nome = a.unidades?.nome_unidade || 'Desconhecida';
-            if (!unidadesMap[uid]) {
-                unidadesMap[uid] = { nome, soma: 0, qtd: 0 };
+            const cid = a.chamados?.cliente_id;
+            if (!cid) return;
+            const nome = a.chamados?.clientes?.nome_cliente || 'Desconhecido';
+            if (!clientesMap[cid]) {
+                clientesMap[cid] = { nome, soma: 0, qtd: 0 };
             }
-            unidadesMap[uid].soma += a.nota;
-            unidadesMap[uid].qtd += 1;
+            clientesMap[cid].soma += a.nota;
+            clientesMap[cid].qtd += 1;
         });
 
-        const ranking = Object.values(unidadesMap).map(u => ({
-            nome: u.nome,
-            media: Math.round((u.soma / u.qtd) * 10) / 10,
-            qtd: u.qtd
+        const ranking = Object.values(clientesMap).map(c => ({
+            nome: c.nome,
+            media: Math.round((c.soma / c.qtd) * 10) / 10,
+            qtd: c.qtd
         })).sort((a, b) => b.media - a.media);
 
         container.innerHTML = `
+            <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h2m-6 0h2m-2 4h6m-7 8h10a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v16a2 2 0 002 2z"/>
+                </svg>
+                Satisfação por Cliente
+            </h3>
             <div class="space-y-2.5">
                 ${ranking.map(item => `
                     <div class="flex items-center justify-between py-1.5 border-b border-slate-800/30 text-sm">

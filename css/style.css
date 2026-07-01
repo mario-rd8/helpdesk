@@ -368,3 +368,427 @@
         transform: translateY(0);
     }
 }
+
+/* ============================================================
+   SIDEBAR RETRÁTIL (Collapsible)
+   ============================================================ */
+
+/* Estado colapsado da sidebar */
+#sidebar.sidebar-collapsed {
+    width: 72px !important;
+}
+
+#sidebar.sidebar-collapsed .sidebar-label,
+#sidebar.sidebar-collapsed .sidebar-section-title,
+#sidebar.sidebar-collapsed #sidebar-user-info p,
+#sidebar.sidebar-collapsed .sidebar-brand-text,
+#sidebar.sidebar-collapsed .sidebar-client-submenu,
+#sidebar.sidebar-collapsed .sidebar-logout-text {
+    display: none !important;
+}
+
+#sidebar.sidebar-collapsed .sidebar-link {
+    justify-content: center;
+    padding: 0.75rem;
+    position: relative;
+}
+
+#sidebar.sidebar-collapsed .sidebar-link svg {
+    margin: 0;
+}
+
+/* Tooltip no modo colapsado */
+#sidebar.sidebar-collapsed .sidebar-link:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #e2e8f0;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#sidebar.sidebar-collapsed #sidebar-user-info {
+    padding: 0.75rem;
+    text-align: center;
+}
+
+#sidebar.sidebar-collapsed .sidebar-brand-logo {
+    margin: 0 auto;
+}
+
+/* Botão de toggle da sidebar */
+.sidebar-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem;
+    background: transparent;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.sidebar-toggle-btn:hover {
+    color: #e2e8f0;
+    background: rgba(51, 65, 85, 0.3);
+}
+
+/* Ajuste do container principal quando sidebar está colapsada */
+#app-container.ml-sidebar-collapsed {
+    margin-left: 72px !important;
+}
+
+/* ============================================================
+   KANBAN: Cards Resolvidos Compactos
+   ============================================================ */
+
+.kanban-card-resolved {
+    opacity: 0.5;
+    border: 1px solid #334155 !important;
+    box-shadow: none !important;
+    transition: opacity 0.2s ease;
+}
+
+.kanban-card-resolved:hover {
+    opacity: 0.75;
+    transform: none;
+    box-shadow: none !important;
+}
+
+.kanban-card-resolved .card-description {
+    display: none;
+}
+
+/* ============================================================
+   KANBAN: Toggle Lista/Kanban
+   ============================================================ */
+
+.kanban-view-toggle {
+    display: inline-flex;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid #334155;
+}
+
+.kanban-view-toggle button {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: transparent;
+    color: #94a3b8;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.kanban-view-toggle button.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.kanban-view-toggle button:hover:not(.active) {
+    background: rgba(51, 65, 85, 0.3);
+    color: #e2e8f0;
+}
+
+/* List View */
+.kanban-list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.kanban-list-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 150px 140px 120px 120px 100px;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #334155;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.kanban-list-header span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.kanban-list-header span:hover {
+    color: #10b981;
+}
+
+.kanban-list-header span.filter-active {
+    color: #10b981;
+}
+
+.kanban-list-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 150px 140px 120px 120px 100px;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+    align-items: center;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.kanban-list-row:hover {
+    background: rgba(30, 41, 59, 0.4);
+}
+
+/* ============================================================
+   KANBAN: Busca Global
+   ============================================================ */
+
+.kanban-search-input {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #334155;
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    color: #e2e8f0;
+    font-size: 0.875rem;
+    width: 280px;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.kanban-search-input::placeholder {
+    color: #64748b;
+}
+
+.kanban-search-input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+/* ============================================================
+   TAREFAS: Coluna do Técnico (5ª coluna)
+   ============================================================ */
+
+.tasks-column {
+    min-width: 280px;
+    max-width: 320px;
+    border-left: 2px solid #334155;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.tasks-column.collapsed {
+    min-width: 48px;
+    max-width: 48px;
+    overflow: hidden;
+}
+
+.tasks-column.collapsed .tasks-column-content {
+    display: none;
+}
+
+.task-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #334155;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid #8b5cf6;
+}
+
+.task-card:hover {
+    border-color: #475569;
+    background: rgba(30, 41, 59, 0.8);
+    transform: translateY(-1px);
+}
+
+.task-card.task-done {
+    opacity: 0.5;
+    border-left-color: #10b981;
+}
+
+/* Task filter buttons */
+.task-filter-btn {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    border: 1px solid #334155;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.task-filter-btn.active {
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.task-filter-btn:hover:not(.active) {
+    background: rgba(51, 65, 85, 0.3);
+    color: #e2e8f0;
+}
+
+/* Chat/Comments in task modal */
+.task-chat-bubble {
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    max-width: 85%;
+}
+
+.task-chat-bubble.own {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    margin-left: auto;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.task-chat-bubble.other {
+    background: rgba(51, 65, 85, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    margin-right: auto;
+    border-bottom-left-radius: 0.25rem;
+}
+
+/* ============================================================
+   ESTRELAS DE AVALIAÇÃO (inline no header)
+   ============================================================ */
+
+.tech-rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-size: 0.85rem;
+}
+
+.tech-rating-stars .star-filled {
+    color: #fbbf24;
+}
+
+.tech-rating-stars .star-empty {
+    color: #475569;
+}
+
+.tech-rating-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fbbf24;
+    margin-left: 0.25rem;
+}
+
+/* ============================================================
+   Estilos CSS para Barra Lateral Recolhida (Sidebar Collapsed)
+   ============================================================ */
+.sidebar-collapsed {
+    width: 72px !important;
+}
+
+/* Ocultar elementos textuais específicos no estado recolhido */
+.sidebar-collapsed .sidebar-logo-text,
+.sidebar-collapsed .sidebar-user-details,
+.sidebar-collapsed .sidebar-label,
+.sidebar-collapsed .sidebar-section-title,
+.sidebar-collapsed .sidebar-client-submenu,
+.sidebar-collapsed .sidebar-signature {
+    display: none !important;
+}
+
+/* Exibir avatar com as iniciais do usuário */
+.sidebar-collapsed .sidebar-initials {
+    display: flex !important;
+}
+
+/* Ajustes visuais nos links e container de logo/user */
+.sidebar-collapsed .sidebar-logo-container {
+    justify-content: center !important;
+    padding: 1.25rem 0.5rem !important;
+}
+
+.sidebar-collapsed #sidebar-user-info {
+    padding: 1rem 0.5rem !important;
+}
+
+.sidebar-collapsed .sidebar-link {
+    justify-content: center !important;
+    padding: 0.75rem 0 !important;
+}
+
+.sidebar-collapsed #btn-logout {
+    justify-content: center !important;
+    padding: 0.75rem 0 !important;
+}
+
+.sidebar-collapsed .sidebar-toggle-btn {
+    justify-content: center !important;
+    padding: 0.75rem 0 !important;
+}
+
+/* Ajustes de margem da página principal */
+.ml-sidebar-collapsed {
+    margin-left: 72px !important;
+}
+
+/* Estilo dos links da sidebar */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.75rem;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+    color: #e2e8f0;
+    background: rgba(51, 65, 85, 0.3);
+}
+
+.sidebar-link.active {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.08);
+    font-weight: 600;
+}
+
+.sidebar-toggle-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    color: #64748b;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+    color: #e2e8f0;
+}
+
+/* ============================================================
+   CHAT: Imagens de Anexos Compactas (Estilo WhatsApp)
+   ============================================================ */
+#chat-timeline-container img {
+    max-width: 180px !important;
+    max-height: 180px !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+    display: block;
+}

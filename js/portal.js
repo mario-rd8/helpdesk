@@ -34,15 +34,18 @@ async function renderPortal() {
 
             <!-- Tabs -->
             <div class="flex gap-6 border-b border-eva-border mb-6">
-                <button class="tab-button active" onclick="switchPortalTab('devices', this)" id="tab-devices">
-                    💻 Meus Dispositivos
+                <button class="tab-button active" onclick="switchPortalTab('tickets', this)" id="tab-tickets">
+                    Meus Chamados
                 </button>
-                <button class="tab-button" onclick="switchPortalTab('tickets', this)" id="tab-tickets">
-                    📋 Meus Chamados
+                <button class="tab-button" onclick="switchPortalTab('devices', this)" id="tab-devices">
+                    Meus Dispositivos
                 </button>
                 ${isManager ? `
                     <button class="tab-button" onclick="switchPortalTab('team', this)" id="tab-team">
-                        👥 Equipamentos da Minha Equipe
+                        Equipamentos da Equipe
+                    </button>
+                    <button class="tab-button" onclick="switchPortalTab('team-tickets', this)" id="tab-team-tickets">
+                        Chamados da Equipe
                     </button>
                 ` : ''}
             </div>
@@ -57,7 +60,7 @@ async function renderPortal() {
     `;
 
     // Carrega a primeira aba por padrão
-    await loadPortalDevices();
+    await loadPortalTickets();
 }
 
 /** Alterna entre tabs */
@@ -78,6 +81,7 @@ async function switchPortalTab(tab, btnElement) {
         case 'devices': await loadPortalDevices(); break;
         case 'tickets': await loadPortalTickets(); break;
         case 'team': await loadPortalTeamDevices(); break;
+        case 'team-tickets': await loadPortalTeamTickets(); break;
     }
 }
 
@@ -424,11 +428,21 @@ async function handleNewTicket(event) {
     spinner.classList.remove('hidden');
 
     try {
+        // Busca o técnico responsável pela unidade organizacional do usuário
+        const { data: unidadeData } = await db
+            .from('unidades')
+            .select('tecnico_responsavel_id')
+            .eq('id', session.unidade_id)
+            .single();
+
         const insertData = {
             descricao: description,
             status: 'Novo',
             unidade_id: session.unidade_id,
             usuario_id: session.id,
+            cliente_id: session.cliente_id,
+            provedor_ti_id: session.provedor_ti_id,
+            tecnico_id: unidadeData?.tecnico_responsavel_id || null // Roteamento automático aprovado
         };
 
         if (assetId) {
@@ -453,12 +467,107 @@ async function handleNewTicket(event) {
         if (window.location.hash === '#/kanban') {
             await loadKanbanData();
         }
-    } catch (err) {
-        showToast(`Erro ao abrir chamado: ${err.message}`, 'error');
     } finally {
         btn.disabled = false;
         btnText.textContent = 'Enviar Chamado';
         spinner.classList.add('hidden');
+    }
+}
+
+/** Aba Exclusiva: Chamados da Minha Equipe (Gestor/Diretor do Cliente) */
+async function loadPortalTeamTickets() {
+    const session = getSession();
+    const tabContent = document.getElementById('portal-tab-content');
+
+    try {
+        // Busca usuários que têm este gestor como gestor_id
+        const { data: membros, error: errMembros } = await db
+            .from('usuarios')
+            .select('id, nome')
+            .eq('gestor_id', session.id);
+
+        if (errMembros) throw errMembros;
+
+        if (!membros || membros.length === 0) {
+            tabContent.innerHTML = `
+                <div class="empty-state py-16">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <p class="text-sm">Nenhum membro subordinado vinculado ao seu perfil.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const membroIds = membros.map(m => m.id);
+
+        // Busca chamados desses membros
+        const { data: chamados, error: errChamados } = await db
+            .from('chamados')
+            .select(`
+                *,
+                ativos:ativo_id ( modelo, codigo_tombamento ),
+                tecnicos:tecnico_id ( nome ),
+                usuarios:usuario_id ( nome )
+            `)
+            .in('usuario_id', membroIds)
+            .order('created_at', { ascending: false });
+
+        if (errChamados) throw errChamados;
+
+        if (!chamados || chamados.length === 0) {
+            tabContent.innerHTML = `
+                <div class="empty-state py-16">
+                    <p class="text-sm">Nenhum chamado aberto pela sua equipe.</p>
+                </div>
+            `;
+            return;
+        }
+
+        tabContent.innerHTML = `
+            <div class="mb-4">
+                <p class="text-sm text-eva-muted">${membros.length} subordinado(s) · ${chamados.length} chamado(s) registrado(s)</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-eva-border text-left">
+                            <th class="py-3 px-4 text-xs font-semibold text-eva-muted uppercase tracking-wider">#</th>
+                            <th class="py-3 px-4 text-xs font-semibold text-eva-muted uppercase tracking-wider">Solicitante</th>
+                            <th class="py-3 px-4 text-xs font-semibold text-eva-muted uppercase tracking-wider">Descrição</th>
+                            <th class="py-3 px-4 text-xs font-semibold text-eva-muted uppercase tracking-wider">Status</th>
+                            <th class="py-3 px-4 text-xs font-semibold text-eva-muted uppercase tracking-wider">Equipamento</th>
+                            <th class="py-3 px-4 text-xs font-semibold text-eva-muted uppercase tracking-wider">Técnico</th>
+                            <th class="py-3 px-4 text-xs font-semibold text-eva-muted uppercase tracking-wider">Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${chamados.map(c => `
+                            <tr class="border-b border-slate-800 hover:bg-slate-800/50 transition-colors cursor-pointer" onclick="openChamadoModal(${c.id})">
+                                <td class="py-3 px-4 text-sm text-slate-300 font-mono">${c.id}</td>
+                                <td class="py-3 px-4 text-sm text-white font-medium">${c.usuarios?.nome || '—'}</td>
+                                <td class="py-3 px-4 text-sm text-slate-200 max-w-xs truncate">${c.descricao}</td>
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-1.5">
+                                        ${c.mencao_gestor_id === session.id && !c.mencao_gestor_lida 
+                                            ? `<span class="text-xs" title="Você foi marcado neste chamado!">📌</span>` 
+                                            : ''
+                                        }
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusClass(c.status)}">${c.status}</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-sm text-slate-400">${c.ativos?.modelo || '—'}</td>
+                                <td class="py-3 px-4 text-sm text-slate-400">${c.tecnicos?.nome || 'Não atribuído'}</td>
+                                <td class="py-3 px-4 text-xs text-slate-500">${formatDate(c.created_at)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } catch (err) {
+        tabContent.innerHTML = `<p class="text-red-400 text-sm">Erro ao carregar chamados da equipe: ${err.message}</p>`;
     }
 }
 

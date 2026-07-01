@@ -70,7 +70,7 @@ document.addEventListener('keydown', (e) => {
 /** Retorna a sessão do localStorage ou null */
 function getSession() {
     try {
-        return JSON.parse(localStorage.getItem('helpdesk_session'));
+        return JSON.parse(localStorage.getItem('user_session'));
     } catch {
         return null;
     }
@@ -78,12 +78,12 @@ function getSession() {
 
 /** Salva a sessão no localStorage */
 function saveSession(sessionData) {
-    localStorage.setItem('helpdesk_session', JSON.stringify(sessionData));
+    localStorage.setItem('user_session', JSON.stringify(sessionData));
 }
 
 /** Limpa a sessão */
 function clearSession() {
-    localStorage.removeItem('helpdesk_session');
+    localStorage.removeItem('user_session');
 }
 
 /** Faz logout e redireciona para login */

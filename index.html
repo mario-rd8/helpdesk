@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Help Desk Selfware — Juntos Educação. Sistema de chamados técnicos soberano.">
-    <title>Help Desk — Juntos Educação</title>
+    <meta name="description" content="Help Desk Platform — Sistema de chamados técnicos soberano multi-tenant B2B2B.">
+    <title>Help Desk Platform</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Favicon Evaflow -->
+    <link rel="icon" type="image/svg+xml" href="assets/EvaFlow-logotipo-FlowDesk-favicon.svg">
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -70,6 +73,9 @@
     <!-- Supabase JS Client via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- PhotoSwipe 5 CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/5.4.4/photoswipe.min.css">
+
     <!-- Estilos customizados Evaflow -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -80,18 +86,9 @@
     <!-- ============================================================ -->
     <aside id="sidebar" class="hidden fixed left-0 top-0 h-full w-64 bg-eva-dark border-r border-eva-border z-40 flex flex-col transition-transform duration-300">
         <!-- Logo / Brand -->
-        <div class="p-6 border-b border-eva-border">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-sm font-bold text-white leading-tight">Help Desk</h1>
-                    <p class="text-xs text-eva-muted">Juntos Educação</p>
-                </div>
-            </div>
+        <div class="p-6 border-b border-eva-border flex items-center justify-start sidebar-logo-container">
+            <img id="sidebar-logo-expanded" src="assets/EvaFlow-logotipo-FlowDesk.svg" alt="EvaFlow FlowDesk" class="h-10 w-auto transition-all duration-300 block">
+            <img id="sidebar-logo-collapsed" src="assets/EvaFlow-logotipo-FlowDesk-icone.svg" alt="EvaFlow FlowDesk Icon" class="h-8 w-8 mx-auto transition-all duration-300 hidden">
         </div>
 
         <!-- User Info -->
@@ -105,13 +102,21 @@
             <!-- Links injetados dinamicamente pelo router -->
         </nav>
 
+        <!-- Assinatura Institucional -->
+        <div class="sidebar-signature text-[10px] text-slate-500 font-medium tracking-wide mb-2 flex items-center justify-center gap-1">
+            <span>Desenvolvido por</span>
+            <a href="http://evaflow.com.br" target="_blank" class="hover:opacity-80 transition-opacity inline-flex items-center">
+                <img src="assets/EvaFlow-logotipo.svg" alt="EvaFlow" class="h-2.5 w-auto">
+            </a>
+        </div>
+
         <!-- Logout -->
         <div class="p-4 border-t border-eva-border">
-            <button id="btn-logout" onclick="handleLogout()" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-slate-400 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="btn-logout" onclick="handleLogout()" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-slate-400 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200" title="Sair">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
-                Sair
+                <span class="sidebar-label">Sair</span>
             </button>
         </div>
     </aside>
@@ -181,6 +186,7 @@
     <script src="js/dashboard.js"></script>
     <script src="js/cadastros.js"></script>
     <script src="js/avaliacoes.js"></script>
+    <script src="js/tarefas.js"></script>
     <script src="js/router.js"></script>
 
 </body>

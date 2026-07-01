@@ -24,7 +24,7 @@ async function checkPendingRatings() {
         // Busca chamados resolvidos do usuário
         const { data: resolvidos, error: errRes } = await db
             .from('chamados')
-            .select('id, descricao, tecnico_id, unidade_id')
+            .select('id, descricao, tecnico_id, provedor_ti_id')
             .eq('usuario_id', session.id)
             .eq('status', 'Resolvido');
 
@@ -86,10 +86,21 @@ function showRatingModal(chamado) {
             </div>
 
             <!-- Label dinâmico -->
-            <p id="rating-label" class="text-sm text-slate-500 mb-6 h-5 transition-all duration-200"></p>
+            <p id="rating-label" class="text-sm text-slate-500 mb-4 h-5 transition-all duration-200"></p>
+
+            <!-- Campo de Comentário -->
+            <div class="mb-5 text-left">
+                <label for="rating-comment" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Comentário opcional</label>
+                <textarea 
+                    id="rating-comment" 
+                    rows="2" 
+                    placeholder="Adicione observações sobre o atendimento..." 
+                    class="w-full bg-slate-800/80 border border-slate-600 rounded-xl py-2 px-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all resize-none"
+                ></textarea>
+            </div>
 
             <!-- Botão Enviar (desabilitado até selecionar estrela) -->
-            <button id="btn-send-rating" onclick="submitRating(${chamado.id}, ${chamado.unidade_id}, '${chamado.tecnico_id || ''}')"
+            <button id="btn-send-rating" onclick="submitRating(${chamado.id}, '${chamado.provedor_ti_id || ''}', '${chamado.tecnico_id || ''}')"
                 disabled
                 class="btn-primary w-full py-3.5 rounded-xl text-sm font-bold opacity-40 cursor-not-allowed transition-all duration-300">
                 Enviar Avaliação
@@ -177,21 +188,23 @@ function selectStar(value) {
 }
 
 /** Envia a avaliação para o Supabase */
-async function submitRating(chamadoId, unidadeId, tecnicoId) {
+async function submitRating(chamadoId, provedorTiId, tecnicoId) {
     const btn = document.getElementById('btn-send-rating');
+    const commentEl = document.getElementById('rating-comment');
+    const comentario = commentEl ? commentEl.value.trim() : '';
+
     if (btn) {
         btn.disabled = true;
         btn.textContent = 'Enviando...';
     }
 
     try {
-        const session = getSession();
         const { error } = await db.from('avaliacoes').insert({
             chamado_id: chamadoId,
             nota: selectedRating,
-            unidade_id: unidadeId,
+            comentario: comentario || null,
             tecnico_id: tecnicoId || null,
-            usuario_id: session.id,
+            provedor_ti_id: provedorTiId || null
         });
 
         if (error) throw error;

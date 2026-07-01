@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 100 100">
+  <!-- Generator: Adobe Illustrator 30.6.0, SVG Export Plug-In . SVG Version: 2.1.4 Build 109)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <path class="st0" d="M99.95,97.99h.05V0c-27.62,0-50,22.39-50,50h0c26.94,0,48.9,21.31,49.95,48h0Z"/>
+  <polygon class="st0" points="49.99 50 49.99 50 50 50 49.99 50"/>
+  <path class="st0" d="M49.99,50C22.38,50,0,72.39,0,100h98v-.05c-26.69-1.05-48.01-23-48.01-49.95Z"/>
+</svg>
